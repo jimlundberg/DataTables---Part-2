@@ -1,0 +1,109 @@
+﻿@page
+@model IndexModel
+@{
+    Layout = "_Layout";
+}
+
+@*//script used to load the grid*@
+<script src="~/js/ag-grid-community.min.js"></script>
+<h1>Hello from ag-grid - Part 2</h1>
+
+<div>
+    <div id="mybutton">
+        <button onclick="onExportCsv()" class="btn-info">Export Csv</button>
+    </div>
+    <div id="myGrid" style="height: 450px;width:900px;" class="ag-theme-balham"></div>
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+
+    var deleteRenderer = function(params) {
+        var eDiv = document.createElement('div');
+        eDiv.innerHTML = '<span class="my-css-class"><button class="btn-del btn-danger btn-xs">Delete</button></span>';
+        var eButton = eDiv.querySelectorAll('.btn-del')[0];
+
+        eButton.addEventListener('click', function() {            
+            console.log('will be deleted, invoice no:', params.data.ID);
+            window.location.href = './Delete?id='+params.data.ID;
+        });
+
+        return eDiv;
+    }
+    var editRenderer = function (params) {
+        var eDiv = document.createElement('div');
+        eDiv.innerHTML = '<span class="my-css-class"><button class="btn-edit btn-warning btn-xs">Edit</button></span>';
+        var eButton = eDiv.querySelectorAll('.btn-edit')[0];
+
+        eButton.addEventListener('click', function() {            
+            console.log('will be edited, invoice no:', params.data.ID);
+            window.location.href = './Edit?id='+params.data.ID;
+        });
+
+        return eDiv;
+    }
+
+    var detailsRenderer = function (params) {
+        var eDiv = document.createElement('div');
+        eDiv.innerHTML = '<span class="my-css-class"><button class="btn-details btn-info btn-xs">Details</button></span>';
+        var eButton = eDiv.querySelectorAll('.btn-details')[0];
+
+        eButton.addEventListener('click', function() {            
+            console.log('will be info, invoice no:', params.data.ID);
+                  window.location.href = './Detail?id='+params.data.ID;
+        });
+
+        return eDiv;
+    }
+    // specify the columns
+    var columnDefs = [
+        { headerName: "InvoiceNumber", field: "InvoiceNumber" },
+        { headerName: "Amount", field: "Amount" },
+        { headerName: "CostCategory", field: "CostCategory" },
+        { headerName: "Period", field: "Period" },
+        { headerName: "Delete", field: null, cellRenderer: deleteRenderer },
+        { headerName: "Edit", field: null, cellRenderer: editRenderer },
+        { headerName: "Details", field: null, cellRenderer: detailsRenderer },
+    ];
+
+    // let the grid know which columns to use
+    var gridOptions = {
+        columnDefs: columnDefs,
+        defaultColDef: {
+            sortable: true,
+            filter: true,
+            width: 120,
+
+        },
+        rowHeight : 35,
+        pagination: true,
+        paginationPageSize: 10,        
+    };
+
+    // lookup the container we want the Grid to use
+    var eGridDiv = document.querySelector('#myGrid');
+
+
+
+    function getParams() {
+        return {
+            suppressQuotes: null,
+            columnSeparator: null,
+            customHeader: null,
+            customFooter: null
+        };
+    }
+
+    function onExportCsv() {
+        var params = getParams();
+         gridOptions.api.exportDataAsCsv(params);
+    }
+   
+    // create the grid passing in the div to use together with the columns & data we want to use
+    new agGrid.Grid(eGridDiv, gridOptions);
+
+    agGrid.simpleHttpRequest({ url: './Index?handler=ArrayData' }).then(function (data) {
+        gridOptions.api.setRowData(data);
+    });
+
+</script>
