@@ -4,14 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
-
 namespace DataTables
 {
     public class InvoiceGenerator
     {
-
-
-
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using (var context = new InvoiceContext(serviceProvider.GetRequiredService<DbContextOptions<InvoiceContext>>()))
@@ -43,8 +39,5 @@ namespace DataTables
                 context.SaveChanges();
             }
         }
-
-
-
     }
 }
